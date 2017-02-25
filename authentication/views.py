@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.shortcuts import render
+from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.http import HttpResponse
 # import pyrebase
@@ -54,7 +55,7 @@ class SignUp(APIView):
                              'user_data': FullAccountSerializer(user).data
                          }})
         except Exception as ex:
-            return Response(ResponseFormat.error(ErrorCode.USERNAME_OR_EMAIL_ALREADY_EXISTS, "Username or email may already exist. Please use another one."))
+            return Response(ResponseFormat.error(ErrorCode.USERNAME_OR_EMAIL_ALREADY_EXISTS, "Username or email may already exist. Please use another one."), status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 class Authentication(APIView):
@@ -71,4 +72,4 @@ class Authentication(APIView):
                                  'token': Token.objects.get(user=user).key,
                                  'user_data': FullAccountSerializer(user).data
                              }))
-        return Response(ResponseFormat.error(ErrorCode.USERNAME_OR_PASSWORD_INCORRECT, "Username or password is incorrect. Please try again."))
+        return Response(ResponseFormat.error(ErrorCode.USERNAME_OR_PASSWORD_INCORRECT, "Username or password is incorrect. Please try again."), status=status.HTTP_404_NOT_FOUND)
