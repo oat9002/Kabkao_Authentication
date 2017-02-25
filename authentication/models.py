@@ -1,3 +1,5 @@
 from django.db import models
 
-# Create your models here.
+class Hello(models.Model):
+    hi = models.FloatField(default=0.0)
+    lo = models.FloatField(default=0.0)

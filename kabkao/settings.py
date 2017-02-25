@@ -25,20 +25,31 @@ SECRET_KEY = ')z^g&)cqfm7dsm*o3l#lp-a*5u6drwn_4hrzb(t+7%kfm6m*a!'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'polls.apps.PollsConfig',
+    'authentication.apps.AuthenticationConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    )
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -76,8 +87,28 @@ WSGI_APPLICATION = 'kabkao.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'kabkao-user-service',
+        'USER': 'kabkao-user-service',
+        'PASSWORD': 'helloitsme',
+        'HOST': '52.187.62.107',
+        'PORT': '10001'
+    },
+    'default1': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'kabkao-user-service',
+        'USER': 'admin',
+        'PASSWORD': 'kabkao.com',
+        'HOST': 'kabkao.c82cwhj1pxxb.ap-southeast-1.rds.amazonaws.com',
+        'PORT': '3306'
+    },
+    'default2': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'kabkao-user-service',
+        'USER': 'admin',
+        'PASSWORD': 'kabkao.com',
+        'HOST': 'kabkao.c82cwhj1pxxb.ap-southeast-1.rds.amazonaws.com',
+        'PORT': '3306'
     }
 }
 
