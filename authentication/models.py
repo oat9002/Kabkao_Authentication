@@ -1,5 +1,10 @@
+from django.contrib.auth.models import User
 from django.db import models
 
-class Hello(models.Model):
-    hi = models.FloatField(default=0.0)
-    lo = models.FloatField(default=0.0)
+class UserProxy(User):
+
+    class Meta:
+        proxy = True
+        permissions = (
+            ('view_user', 'View user'),
+        )
