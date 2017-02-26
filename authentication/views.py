@@ -3,37 +3,15 @@ from django.contrib.auth.models import User
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from django.http import HttpResponse
-# import pyrebase
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from authentication.serializer import FullAccountSerializer, BasicAccountSerializer
+from guardian.shortcuts import assign_perm
+
 
 import ErrorCode
 import ResponseFormat
-from authentication.permissions import IsAdmin
-
-# config = {
-#     'apiKey': "AIzaSyAGPTJC14nFrWJE0e7348YftzcYkUkEhG0",
-#     'authDomain': "kabkao-fc139.firebaseapp.com",
-#     'databaseURL': "https://kabkao-fc139.firebaseio.com",
-#     'storageBucket': "kabkao-fc139.appspot.com",
-#     'messagingSenderId': "279221787005"
-# }
-# firebase = pyrebase.initialize_app(config)
-# auth = firebase.auth()
-#
-# def authentication(request):
-#     user = auth.sign_in_with_email_and_password(request.GET['email'], request.GET['password'])
-#     return HttpResponse(user['idToken'])
-
-# def verify_account(request):
-#     try:
-#         verification = auth.get_account_info(request.GET['idToken'])
-#     except:
-#         return HttpResponse('not verify')
-#     return HttpResponse('verify')
-# Create your views here.
-from authentication.serializer import FullAccountSerializer
 
 
 class SignUp(APIView):
@@ -73,3 +51,34 @@ class Authentication(APIView):
                                  'user_data': FullAccountSerializer(user).data
                              }))
         return Response(ResponseFormat.error(ErrorCode.USERNAME_OR_PASSWORD_INCORRECT, "Username or password is incorrect. Please try again."), status=status.HTTP_404_NOT_FOUND)
+
+
+class UserInfo(APIView):
+
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request):
+        try:
+            user_obj = User.objects.get(pk=request.query_params['id'])
+            user_data = self.get_serializer_class()(user_obj).data
+            return Response(ResponseFormat.success({'user_data': user_data}))
+        except Exception:
+            return Response(ResponseFormat.error(ErrorCode.DATA_NOT_FOUND, "User data not found."), status=status.HTTP_404_NOT_FOUND)
+
+    # def post(self, request):
+
+
+    def get_serializer_class(self):
+        request = self.request
+        user = request.user
+        if user.is_staff or user.id == request.query_params['id']:
+            return FullAccountSerializer
+        return BasicAccountSerializer
+
+
+# def test_permission(request):
+#     user = User.objects.get(pk=1)
+#     user2 = User.objects.get(pk=5)
+#     # assign_perm('view_user', user, user2)
+#     print user.has_perm('view_user', user2)
+#     return Response(user.has_perm('add_user'))

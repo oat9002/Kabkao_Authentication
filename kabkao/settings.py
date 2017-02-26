@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
     'rest_framework',
+    'guardian',
 ]
 
 REST_FRAMEWORK = {
@@ -62,6 +63,11 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'kabkao.urls'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # default
+    'guardian.backends.ObjectPermissionBackend',
+)
 
 TEMPLATES = [
     {
