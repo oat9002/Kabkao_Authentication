@@ -73,12 +73,12 @@ class Login(APIView):
 class Logout(APIView):
 
     @staticmethod
-    def post(request):
+    def get(request):
         try:
             logout(request)
             return Response(ResponseFormat.success())
         except Exception:
-            return Response(ResponseFormat.error(ErrorCode.INTERNAL_SERVER_ERROR, "Logout failed."))
+            return Response(ResponseFormat.error(ErrorCode.INTERNAL_SERVER_ERROR, "Logout failed."), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserInfo(APIView):
@@ -151,7 +151,7 @@ class CheckPermission(APIView):
                 return Response(ResponseFormat.success({'is_allowed': True}))
             return Response(ResponseFormat.success({'is_allowed': False}))
         except Exception:
-            return Response(ResponseFormat.error(ErrorCode.DATA_NOT_FOUND, "Permission not found. Please try again."))
+            return Response(ResponseFormat.error(ErrorCode.INTERNAL_SERVER_ERROR, "Permission checking failed."))
 
 
 class PermissionManagement():
