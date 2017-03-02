@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from authentication.models import CustomPermission
+from authentication.models import CustomPermission, Profile
 from authentication.serializer import FullAccountSerializer, BasicAccountSerializer
 from guardian.shortcuts import assign_perm
 from django.contrib.auth.models import Permission
@@ -32,11 +32,12 @@ class SignUp(APIView):
             if User.objects.filter(email=request.data['email']).exists():
                 raise Exception
             group = PermissionManagement().get_standard_user_group()
-            user = User.objects.create_user(username=request.data['username'], email=request.data['email'], password=request.data['password'])
+            data = request.data
+            user = User.objects.create_user(username=data['username'], email=data['email'], password=data['password'], first_name=data['first_name'], last_name=data['last_name'])
             user.groups.add(group)
+            Profile.objects.create(user=user, address=data['address'])
             self.setExtraPermissions(user)
             Token.objects.create(user=user)
-            # login(request, user)
             return Response({'success': True,
                          'payload': {
                              'token': Token.objects.get(user=user).key,
@@ -45,7 +46,7 @@ class SignUp(APIView):
         except Exception as ex:
             if user and not user.is_anonymous:
                 user.delete()
-            return Response(ResponseFormat.error(ErrorCode.USERNAME_OR_EMAIL_ALREADY_EXISTS, "Username or email may already exist. Please use another one."), status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response(ResponseFormat.error(ErrorCode.USERNAME_OR_EMAIL_ALREADY_EXISTS, "Username and email may already exist, or there are incomplete required fields. Please use another one or try to fill out the form again."), status=status.HTTP_406_NOT_ACCEPTABLE)
 
     def setExtraPermissions(self, user):
         assign_perm('change_user', user, user)
